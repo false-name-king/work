@@ -5,4 +5,4 @@ pages_build_output_dir = "dist"
 [[d1_databases]]
 binding = "DB" # Available in your Pages Functions as env.DB
 database_name = "myapp-db"
-database_id = "YOUR_DATABASE_ID_HERE" # We will replace this after running the wrangler command
+database_id = "d0f688e7-7273-4114-9e2f-e1f8dfb7da73" # We will replace this after running the wrangler command
