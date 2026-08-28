@@ -20,6 +20,8 @@ interface PeopleStore {
   today: string;
   memo: string;
   updatePerson: (id: number, updates: Partial<Person>) => void;
+  addPerson: (name: string) => void;
+  removePerson: (id: number) => void;
   setToday: (today: string) => void;
   setMemo: (memo: string) => void;
 }
@@ -38,6 +40,25 @@ export const useStore = create<PeopleStore>((set) => ({
   memo: "无",
   updatePerson: (id, updates) => set((state) => ({
     people: state.people.map(p => p.id === id ? { ...p, ...updates } : p)
+  })),
+  addPerson: (name) => set((state) => {
+    const lastPerson = state.people[state.people.length - 1];
+    const newPerson: Person = {
+      id: Math.max(0, ...state.people.map(p => p.id)) + 1,
+      name,
+      role: '组员',
+      machine: null,
+      attendance: '出勤',
+      workStatus: [],
+      batches: lastPerson?.batches ?? 20,
+      pieces: lastPerson?.pieces ?? 20,
+      startTime: lastPerson?.startTime ?? '19:00',
+      endTime: lastPerson?.endTime ?? '20:30',
+    };
+    return { people: [...state.people, newPerson] };
+  }),
+  removePerson: (id) => set((state) => ({
+    people: state.people.filter(p => p.id !== id)
   })),
   setToday: (today) => set({ today }),
   setMemo: (memo) => set({ memo }),

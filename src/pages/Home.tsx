@@ -13,23 +13,10 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-[#F2F2F7] flex flex-col relative">
-      {/* Scrollable Views Container */}
-      <main className="flex-1 overflow-y-auto px-4 pt-6 pb-24 max-w-[500px] mx-auto w-full relative">
-        {/* View 1: Data */}
-        <div className={cn("absolute top-0 left-0 right-0 px-4 pt-6 pb-24", activeTab === 'data' ? "opacity-100 z-10" : "opacity-0 pointer-events-none z-0")}>
-           <Data />
-        </div>
-        
-        {/* View 2: Date */}
-        <div className={cn("absolute top-0 left-0 right-0 px-4 pt-6 pb-24", activeTab === 'date' ? "opacity-100 z-10" : "opacity-0 pointer-events-none z-0")}>
-           <DatePage />
-        </div>
-      </main>
-
-      {/* iOS Floating Tab Bar */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 pointer-events-none z-50">
+      {/* iOS Floating Tab Bar at Top */}
+      <div className="fixed top-0 left-0 right-0 p-4 pointer-events-none z-50">
         <div className="max-w-[500px] mx-auto w-full pointer-events-auto">
-          <div className="ios-glass rounded-[2rem] shadow-[0_-8px_30px_rgb(0,0,0,0.04)] border border-white/40 p-1.5">
+          <div className="ios-glass rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/40 p-1.5">
             <Tabs 
               value={activeTab} 
               onValueChange={(val) => navigate(val === 'date' ? '/date' : '/')}
@@ -55,6 +42,19 @@ const Home = () => {
           </div>
         </div>
       </div>
+
+      {/* Scrollable Views Container */}
+      <main className="flex-1 overflow-y-auto px-4 pt-20 pb-6 max-w-[500px] mx-auto w-full relative">
+        {/* View 1: Data */}
+        <div className={cn("absolute top-0 left-0 right-0 px-4 pt-20 pb-6", activeTab === 'data' ? "opacity-100 z-10" : "opacity-0 pointer-events-none z-0")}>
+           <Data />
+        </div>
+        
+        {/* View 2: Date */}
+        <div className={cn("absolute top-0 left-0 right-0 px-4 pt-20 pb-6", activeTab === 'date' ? "opacity-100 z-10" : "opacity-0 pointer-events-none z-0")}>
+           <DatePage />
+        </div>
+      </main>
     </div>
   );
 };

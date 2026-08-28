@@ -49,8 +49,8 @@ const PersonItem = memo(({ id }: PersonItemProps) => {
             value={item.machine?.toString() || ""} 
             onValueChange={(v) => updatePerson(id, { machine: v ? parseInt(v) : null })}
           >
-            <SelectTrigger className="h-7 w-16 bg-white/80 text-[11px] px-2 rounded-lg">
-              <SelectValue placeholder="机号" />
+            <SelectTrigger className="h-7 w-24 bg-white/80 text-[11px] px-2 rounded-lg">
+              <SelectValue placeholder="选择机器号" />
             </SelectTrigger>
             <SelectContent>
               {MACHINES.map(m => <SelectItem key={m} value={m.toString()}>{m}</SelectItem>)}

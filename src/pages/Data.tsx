@@ -1,11 +1,20 @@
+import { useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { useStore } from '@/store/useStore';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Clock, Share } from "lucide-react";
+import { Clock, Share, UserPlus, Trash2 } from "lucide-react";
 import PersonItem from "./PersonItem";
 import { cn } from "@/lib/utils";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 const Data = () => {
   const peopleIds = useStore(useShallow((state) => state.people.map(p => p.id)));
@@ -13,12 +22,27 @@ const Data = () => {
   const memo = useStore((state) => state.memo);
   const setToday = useStore((state) => state.setToday);
   const setMemo = useStore((state) => state.setMemo);
+  const addPerson = useStore((state) => state.addPerson);
+  const removePerson = useStore((state) => state.removePerson);
   
   const { batchesNum, piecesNum, people } = useStore(useShallow((state) => ({
     batchesNum: state.people.reduce((sum, i) => sum + (i.batches || 0), 0),
     piecesNum: state.people.reduce((sum, i) => sum + (i.pieces || 0), 0),
     people: state.people
   })));
+
+  const [newName, setNewName] = useState("");
+  const [isManageOpen, setIsManageOpen] = useState(false);
+
+  const handleAddPerson = () => {
+    if (!newName.trim()) {
+      toast.error("请输入姓名");
+      return;
+    }
+    addPerson(newName.trim());
+    setNewName("");
+    toast.success(`已添加 ${newName}`);
+  };
 
   const buildCopyText = () => {
     const lines = [today];
@@ -55,7 +79,7 @@ const Data = () => {
   };
 
   return (
-    <div className="space-y-3 pb-24">
+    <div className="space-y-3 pb-8">
       {/* Global Config */}
       <div className="ios-card p-3 space-y-3">
         <div className="flex items-center gap-3">
@@ -79,7 +103,65 @@ const Data = () => {
       {/* List Header */}
       <div className="flex justify-between items-center px-1">
         <h2 className="text-lg font-bold text-black/90">组员数据</h2>
-        <Button variant="ghost" size="sm" className="h-7 text-xs text-[#007AFF] font-bold">管理</Button>
+        <Dialog open={isManageOpen} onOpenChange={setIsManageOpen}>
+          <DialogTrigger asChild>
+            <Button variant="ghost" size="sm" className="h-7 text-xs text-[#007AFF] font-bold">管理</Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px] rounded-[2rem] border-none ios-glass p-6">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold">人员管理</DialogTitle>
+            </DialogHeader>
+            <div className="py-4 space-y-6">
+              {/* Add Section */}
+              <div className="space-y-3">
+                <h3 className="text-[10px] font-bold text-black/40 uppercase tracking-wider ml-1">新增人员</h3>
+                <div className="flex gap-2">
+                  <Input 
+                    placeholder="输入姓名" 
+                    value={newName} 
+                    onChange={(e) => setNewName(e.target.value)}
+                    className="h-10 text-sm bg-black/[0.03] border-none rounded-2xl"
+                  />
+                  <Button onClick={handleAddPerson} className="h-10 px-4 rounded-2xl bg-[#007AFF] text-white">
+                    <UserPlus className="w-4 h-4 mr-2" />
+                    添加
+                  </Button>
+                </div>
+              </div>
+
+              {/* List Section */}
+              <div className="space-y-3">
+                <h3 className="text-[10px] font-bold text-black/40 uppercase tracking-wider ml-1">现有人员 ({people.length})</h3>
+                <div className="max-h-[300px] overflow-y-auto space-y-2 pr-1">
+                  {people.map((p) => (
+                    <div key={p.id} className="flex items-center justify-between p-3 bg-black/[0.03] rounded-2xl group">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[10px] font-bold text-black/60 shadow-sm">
+                          {p.name.slice(0, 1)}
+                        </div>
+                        <span className="text-sm font-bold text-black/80">{p.name}</span>
+                      </div>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={() => {
+                          removePerson(p.id);
+                          toast.success(`已删除 ${p.name}`);
+                        }}
+                        className="h-8 w-8 text-red-500 hover:bg-red-50 rounded-xl"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button onClick={() => setIsManageOpen(false)} className="w-full h-11 rounded-2xl bg-black text-white font-bold">完成</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* People List */}
