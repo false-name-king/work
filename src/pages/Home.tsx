@@ -3,7 +3,6 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LayoutGrid, Calendar } from "lucide-react";
 import Data from "./Data";
 import DatePage from "./Date";
-import { cn } from "@/lib/utils";
 
 const Home = () => {
   const location = useLocation();
