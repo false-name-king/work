@@ -65,7 +65,7 @@ export const ScrollPicker = ({ options, value, onChange, className }: ScrollPick
           <div 
             key={i}
             className={cn(
-              "h-[44px] flex items-center justify-center text-lg snap-center cursor-pointer",
+              "h-[44px] flex items-center justify-center text-lg snap-center cursor-pointer font-tabular",
               value === opt ? "text-[#007AFF] font-semibold scale-110" : "text-black/30 scale-100"
             )}
             onClick={() => scrollToValue(opt)}

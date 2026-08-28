@@ -36,7 +36,14 @@
     @apply bg-[#F2F2F7] text-foreground antialiased selection:bg-primary/20;
     /* iOS System Background Color */
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-feature-settings: "tnum";
+    font-variant-numeric: tabular-nums;
   }
+}
+
+.font-tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
 }
 
 /* iOS Glassmorphism Utilities */

@@ -23,7 +23,7 @@ export const TimePicker = ({ value, onChange, label }: TimePickerProps) => {
           className="h-10 w-full justify-start gap-2 bg-black/[0.05] border-none rounded-xl px-3 font-normal active:bg-black/[0.1]"
         >
           <Clock className="h-4 w-4 opacity-50" />
-          <span>{value || "选择时间"}</span>
+          <span className="font-tabular">{value || "选择时间"}</span>
           {label && <span className="ml-auto text-[10px] text-black/30 font-bold uppercase">{label}</span>}
         </Button>
       </PopoverTrigger>
