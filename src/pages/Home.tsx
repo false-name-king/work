@@ -12,7 +12,7 @@ const Home = () => {
   const activeTab = location.pathname === '/date' ? 'date' : 'data';
 
   return (
-    <div className="min-h-screen bg-[#F2F2F7] flex flex-col relative">
+    <div className="min-h-svh bg-[#F2F2F7] relative">
       {/* iOS Floating Tab Bar at Top */}
       <div className="fixed top-0 left-0 right-0 p-4 pointer-events-none z-50">
         <div className="max-w-[500px] mx-auto w-full pointer-events-auto">
@@ -43,15 +43,15 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Scrollable Views Container */}
-      <main className="flex-1 overflow-y-auto px-4 pt-20 pb-6 max-w-[500px] mx-auto w-full relative">
+      {/* Main Content: Natural scrolling, keeping both components in DOM for performance */}
+      <main className="px-4 pt-24 pb-8 max-w-[500px] mx-auto w-full">
         {/* View 1: Data */}
-        <div className={cn("absolute top-0 left-0 right-0 px-4 pt-20 pb-6", activeTab === 'data' ? "opacity-100 z-10" : "opacity-0 pointer-events-none z-0")}>
+        <div style={{ display: activeTab === 'data' ? 'block' : 'none' }}>
            <Data />
         </div>
         
         {/* View 2: Date */}
-        <div className={cn("absolute top-0 left-0 right-0 px-4 pt-20 pb-6", activeTab === 'date' ? "opacity-100 z-10" : "opacity-0 pointer-events-none z-0")}>
+        <div style={{ display: activeTab === 'date' ? 'block' : 'none' }}>
            <DatePage />
         </div>
       </main>
