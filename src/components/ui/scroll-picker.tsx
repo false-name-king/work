@@ -58,7 +58,7 @@ export const ScrollPicker = ({ options, value, onChange, className }: ScrollPick
       
       <div 
         ref={scrollRef}
-        className="h-full overflow-y-scroll snap-y snap-mandatory no-scrollbar py-[88px]"
+        className="h-full overflow-y-scroll overflow-x-hidden snap-y snap-mandatory no-scrollbar py-[88px]"
         style={{ scrollSnapType: 'y mandatory' }}
       >
         {options.map((opt, i) => (

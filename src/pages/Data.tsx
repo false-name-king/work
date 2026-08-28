@@ -87,7 +87,7 @@ const Data = () => {
           <Input 
             value={today} 
             onChange={(e) => setToday(e.target.value)}
-            className="h-8 text-xs flex-1 bg-black/[0.03]"
+            className="h-8 text-[16px] flex-1 bg-black/[0.03] sm:text-xs"
           />
         </div>
         <div className="flex items-center gap-3">
@@ -95,7 +95,7 @@ const Data = () => {
           <Input 
             value={memo} 
             onChange={(e) => setMemo(e.target.value)}
-            className="h-8 text-xs flex-1 bg-black/[0.03]"
+            className="h-8 text-[16px] flex-1 bg-black/[0.03] sm:text-xs"
           />
         </div>
       </div>
@@ -120,7 +120,7 @@ const Data = () => {
                     placeholder="输入姓名" 
                     value={newName} 
                     onChange={(e) => setNewName(e.target.value)}
-                    className="h-10 text-sm bg-black/[0.03] border-none rounded-2xl"
+                    className="h-10 text-[16px] bg-black/[0.03] border-none rounded-2xl sm:text-sm"
                   />
                   <Button onClick={handleAddPerson} className="h-10 px-4 rounded-2xl bg-[#007AFF] text-white">
                     <UserPlus className="w-4 h-4 mr-2" />

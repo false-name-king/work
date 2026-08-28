@@ -317,7 +317,7 @@ export default function DatePage() {
               type="date" 
               value={selectedBaseDateStr}
               onChange={(e) => setSelectedBaseDateStr(e.target.value)}
-              className="w-full h-11 bg-black/[0.03] border-none rounded-2xl px-3 text-[14px] font-bold text-black/80 outline-none appearance-none"
+              className="w-full h-11 bg-black/[0.03] border-none rounded-2xl px-3 text-[16px] font-bold text-black/80 outline-none appearance-none sm:text-[14px]"
             />
           </div>
           <Button onClick={() => applyBaseSetting(1)} className="h-11 px-3 sm:px-5 rounded-2xl bg-[#fff1f0] text-[#cf1322] hover:bg-[#ff4d4f] hover:text-white font-bold transition-colors whitespace-nowrap">
