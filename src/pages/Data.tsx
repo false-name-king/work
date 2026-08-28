@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { useStore } from '@/store/useStore';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Clock, Share, UserPlus, Trash2 } from "lucide-react";
+import { Clock, Share, UserPlus, Trash2, Loader2 } from "lucide-react";
 import PersonItem from "./PersonItem";
 import { cn } from "@/lib/utils";
 import {
@@ -20,10 +20,16 @@ const Data = () => {
   const peopleIds = useStore(useShallow((state) => state.people.map(p => p.id)));
   const today = useStore((state) => state.today);
   const memo = useStore((state) => state.memo);
+  const isLoading = useStore((state) => state.isLoading);
   const setToday = useStore((state) => state.setToday);
   const setMemo = useStore((state) => state.setMemo);
   const addPerson = useStore((state) => state.addPerson);
   const removePerson = useStore((state) => state.removePerson);
+  const fetchData = useStore((state) => state.fetchData);
+
+  useEffect(() => {
+    fetchData(today);
+  }, []);
   
   const { batchesNum, piecesNum, people } = useStore(useShallow((state) => ({
     batchesNum: state.people.reduce((sum, i) => sum + (i.batches || 0), 0),
@@ -165,10 +171,17 @@ const Data = () => {
       </div>
 
       {/* People List */}
-      <div className="space-y-3">
-        {peopleIds.map((id) => (
-          <PersonItem key={id} id={id} />
-        ))}
+      <div className="space-y-3 min-h-[200px]">
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center h-full space-y-2 py-10 opacity-50">
+            <Loader2 className="w-8 h-8 animate-spin text-[#007AFF]" />
+            <span className="text-xs font-bold uppercase tracking-widest text-black/40">加载数据中...</span>
+          </div>
+        ) : (
+          peopleIds.map((id) => (
+            <PersonItem key={id} id={id} />
+          ))
+        )}
       </div>
 
       {/* Summary Section */}

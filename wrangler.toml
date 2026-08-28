@@ -1,0 +1,8 @@
+name = "myapp"
+compatibility_date = "2024-03-20"
+pages_build_output_dir = "dist"
+
+[[d1_databases]]
+binding = "DB" # Available in your Pages Functions as env.DB
+database_name = "myapp-db"
+database_id = "YOUR_DATABASE_ID_HERE" # We will replace this after running the wrangler command
