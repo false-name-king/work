@@ -4,7 +4,9 @@ interface Env {
 
 export const onRequestGet: PagesFunction<Env> = async (context) => {
   const url = new URL(context.request.url);
-  const date = url.searchParams.get('date') || new Date().toISOString().split('T')[0];
+  const now = new Date();
+  const defaultDate = `${now.getMonth() + 1} 月 ${now.getDate()} 日`;
+  const date = url.searchParams.get('date') || defaultDate;
 
   try {
     const result = await context.env.DB.prepare(`
@@ -20,9 +22,10 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 export const onRequestPut: PagesFunction<Env> = async (context) => {
   try {
     const { date, memo } = await context.request.json<{ date: string, memo: string }>();
-    if (!date) return Response.json({ error: 'Date is required' }, { status: 400 });
+    if (!date && typeof date !== 'string') return Response.json({ error: 'Date is required' }, { status: 400 });
 
-    const targetDate = date || new Date().toISOString().split('T')[0];
+    const now = new Date();
+    const targetDate = date || `${now.getMonth() + 1} 月 ${now.getDate()} 日`;
     const targetMemo = memo || '无';
 
     // 使用 INSERT ON CONFLICT 语法来处理 upsert

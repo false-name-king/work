@@ -30,6 +30,9 @@ const Data = () => {
   useEffect(() => {
     fetchData(today);
   }, []);
+
+  console.log(today);
+  
   
   const { batchesNum, piecesNum, people } = useStore(useShallow((state) => ({
     batchesNum: state.people.reduce((sum, i) => sum + (i.batches || 0), 0),
@@ -39,6 +42,18 @@ const Data = () => {
 
   const [newName, setNewName] = useState("");
   const [isManageOpen, setIsManageOpen] = useState(false);
+
+  // Local state for inputs to avoid frequent re-renders/API calls
+  const [localToday, setLocalToday] = useState(today);
+  const [localMemo, setLocalMemo] = useState(memo);
+
+  useEffect(() => {
+    setLocalToday(today);
+  }, [today]);
+
+  useEffect(() => {
+    setLocalMemo(memo);
+  }, [memo]);
 
   const handleAddPerson = () => {
     if (!newName.trim()) {
@@ -91,16 +106,27 @@ const Data = () => {
         <div className="flex items-center gap-3">
           <span className="text-[10px] text-black/40 font-bold uppercase w-12 text-center">日期</span>
           <Input 
-            value={today} 
-            onChange={(e) => setToday(e.target.value)}
+            type="text"
+            value={localToday} 
+            onChange={(e) => setLocalToday(e.target.value)}
+            onBlur={() => {
+              if (localToday && localToday !== today) {
+                setToday(localToday);
+              }
+            }}
             className="h-8 text-[16px] flex-1 bg-black/[0.03] sm:text-xs"
           />
         </div>
         <div className="flex items-center gap-3">
           <span className="text-[10px] text-black/40 font-bold uppercase w-12 text-center">备注</span>
           <Input 
-            value={memo} 
-            onChange={(e) => setMemo(e.target.value)}
+            value={localMemo} 
+            onChange={(e) => setLocalMemo(e.target.value)}
+            onBlur={() => {
+              if (localMemo !== memo) {
+                setMemo(localMemo);
+              }
+            }}
             className="h-8 text-[16px] flex-1 bg-black/[0.03] sm:text-xs"
           />
         </div>

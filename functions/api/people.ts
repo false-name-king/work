@@ -4,7 +4,9 @@ interface Env {
 
 export const onRequestGet: PagesFunction<Env> = async (context) => {
   const url = new URL(context.request.url);
-  const date = url.searchParams.get('date') || new Date().toISOString().split('T')[0];
+  const now = new Date();
+  const defaultDate = `${now.getMonth() + 1} 月 ${now.getDate()} 日`;
+  const date = url.searchParams.get('date') || defaultDate;
 
   try {
     const { results } = await context.env.DB.prepare(`

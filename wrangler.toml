@@ -1,6 +1,6 @@
 name = "myapp"
 compatibility_date = "2024-03-20"
-pages_build_output_dir = "dist"
+# pages_build_output_dir = "dist" # Commented out for local development to avoid conflict with `-- npm run dev`
 
 [[d1_databases]]
 binding = "DB" # Available in your Pages Functions as env.DB

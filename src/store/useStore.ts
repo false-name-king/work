@@ -28,13 +28,17 @@ interface PeopleStore {
   setMemo: (memo: string) => Promise<void>;
 }
 
-export const useStore = create<PeopleStore>((set, get) => ({
-  people: [],
-  today: new Date().toISOString().split('T')[0], // Use ISO format for DB consistency
-  memo: "无",
-  isLoading: false,
+export const useStore = create<PeopleStore>((set, get) => {
+  const now = new Date();
+  const defaultDate = `${now.getMonth() + 1} 月 ${now.getDate()} 日`;
 
-  fetchData: async (dateStr) => {
+  return {
+    people: [],
+    today: defaultDate, // Formatted as "8 月 31 日"
+    memo: "无",
+    isLoading: false,
+
+    fetchData: async (dateStr) => {
     set({ isLoading: true });
     try {
       const [peopleRes, memoRes] = await Promise.all([
@@ -120,7 +124,8 @@ export const useStore = create<PeopleStore>((set, get) => ({
       console.error("同步备注失败", e);
     }
   },
-}));
+};
+});
 
 export const ROLES = ['机长', '组员'];
 export const MACHINES = Array.from({ length: 100 }, (_, i) => i);
