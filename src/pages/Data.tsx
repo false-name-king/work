@@ -31,9 +31,6 @@ const Data = () => {
     fetchData(today);
   }, []);
 
-  console.log(today);
-  
-  
   const { batchesNum, piecesNum, people } = useStore(useShallow((state) => ({
     batchesNum: state.people.reduce((sum, i) => sum + (i.batches || 0), 0),
     piecesNum: state.people.reduce((sum, i) => sum + (i.pieces || 0), 0),
