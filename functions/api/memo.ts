@@ -2,6 +2,10 @@ interface Env {
   DB: D1Database;
 }
 
+interface MemoRow {
+  memo: string;
+}
+
 export const onRequestGet: PagesFunction<Env> = async (context) => {
   const url = new URL(context.request.url);
   const now = new Date();
@@ -11,7 +15,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
   try {
     const result = await context.env.DB.prepare(`
       SELECT memo FROM global_notes WHERE record_date = ?
-    `).bind(date).first();
+    `).bind(date).first<MemoRow>();
 
     return Response.json({ memo: result?.memo || '无' });
   } catch (error) {
@@ -21,12 +25,13 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 
 export const onRequestPut: PagesFunction<Env> = async (context) => {
   try {
-    const { date, memo } = await context.request.json<{ date: string, memo: string }>();
-    if (!date && typeof date !== 'string') return Response.json({ error: 'Date is required' }, { status: 400 });
+    const body = (await context.request.json()) as { date?: string; memo?: string };
+    const date = body?.date;
+    const memo = body?.memo;
 
     const now = new Date();
     const targetDate = date || `${now.getMonth() + 1} 月 ${now.getDate()} 日`;
-    const targetMemo = memo || '无';
+    const targetMemo = memo ?? '无';
 
     // 使用 INSERT ON CONFLICT 语法来处理 upsert
     const { success } = await context.env.DB.prepare(`

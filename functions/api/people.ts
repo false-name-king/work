@@ -2,6 +2,19 @@ interface Env {
   DB: D1Database;
 }
 
+interface PersonRow {
+  id: number;
+  name: string;
+  role: string;
+  machine: number | null;
+  attendance: string;
+  workStatus: string;
+  batches: number;
+  pieces: number;
+  startTime: string;
+  endTime: string;
+}
+
 export const onRequestGet: PagesFunction<Env> = async (context) => {
   const url = new URL(context.request.url);
   const now = new Date();
@@ -23,7 +36,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
         COALESCE(r.end_time, '20:30') as endTime
       FROM people p
       LEFT JOIN daily_records r ON p.id = r.person_id AND r.record_date = ?
-    `).bind(date).all();
+    `).bind(date).all<PersonRow>();
 
     const formattedResults = results.map(row => ({
       ...row,
@@ -38,7 +51,8 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   try {
-    const { name } = await context.request.json<{ name: string }>();
+    const body = (await context.request.json()) as { name?: string };
+    const name = body?.name?.trim();
     if (!name) return Response.json({ error: 'Name is required' }, { status: 400 });
 
     const { success } = await context.env.DB.prepare(
