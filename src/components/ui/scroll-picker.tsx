@@ -92,7 +92,7 @@ export const ScrollPicker = ({
   return (
     <div 
       className={cn(
-        "relative h-[220px] w-full overflow-hidden bg-white/60 backdrop-blur-md rounded-2xl border border-black/[0.06] focus-within:ring-2 focus-within:ring-[#007AFF]", 
+        "relative h-[220px] w-full overflow-hidden clay-tray rounded-3xl border border-white/80 focus-within:ring-2 focus-within:ring-[#7379E6]", 
         className
       )}
       role="listbox"
@@ -102,7 +102,7 @@ export const ScrollPicker = ({
     >
       {/* Selection Center Highlight Bar */}
       <div 
-        className="absolute top-[88px] left-0 w-full h-[44px] pointer-events-none bg-[#007AFF]/[0.08] border-y border-[#007AFF]/20 z-10 rounded-lg" 
+        className="absolute top-[88px] left-0 w-full h-[44px] pointer-events-none bg-[#7379E6]/10 border-y-2 border-[#7379E6]/30 z-10 rounded-xl" 
         aria-hidden="true"
       />
       
@@ -121,8 +121,8 @@ export const ScrollPicker = ({
               className={cn(
                 "h-[44px] flex items-center justify-center text-lg snap-center cursor-pointer font-tabular transition-all duration-150 select-none",
                 isSelected 
-                  ? "text-[#007AFF] font-bold scale-110" 
-                  : "text-black/35 hover:text-black/60 scale-95"
+                  ? "text-[#7379E6] font-black scale-110" 
+                  : "text-[#86839C] hover:text-[#2D3142] scale-95 font-bold"
               )}
               onClick={() => {
                 onChange(opt);

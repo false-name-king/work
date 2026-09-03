@@ -37,8 +37,8 @@
     scroll-behavior: smooth;
   }
   body {
-    @apply bg-[#F2F2F7] text-foreground antialiased selection:bg-[#007AFF]/20;
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+    @apply bg-[#FAF7F2] text-[#2D3142] antialiased selection:bg-[#7379E6]/25;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "SF Pro Text", "Nunito", "Quicksand", "PingFang SC", "Helvetica Neue", sans-serif;
     font-feature-settings: "tnum";
     font-variant-numeric: tabular-nums;
     -webkit-font-smoothing: antialiased;
@@ -51,13 +51,128 @@
   font-feature-settings: "tnum";
 }
 
-/* iOS Glassmorphism Utilities */
+/* 2026 Claymorphism Design System */
+.clay-card {
+  background: #FFFFFF;
+  border-radius: 1.5rem;
+  border: 1.5px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 
+    0 10px 24px -4px rgba(50, 45, 75, 0.07),
+    0 3px 8px -1px rgba(50, 45, 75, 0.03),
+    inset 0 2.5px 5px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -3px 6px 0 rgba(50, 45, 75, 0.04);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+}
+
+.clay-card-lavender {
+  background: #EEF0FD;
+  border-radius: 1.5rem;
+  border: 1.5px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 
+    0 10px 22px -4px rgba(115, 121, 230, 0.15),
+    0 2px 6px -1px rgba(115, 121, 230, 0.06),
+    inset 0 3px 5px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -3px 5px 0 rgba(115, 121, 230, 0.1);
+}
+
+.clay-card-mint {
+  background: #E8F6EF;
+  border-radius: 1.5rem;
+  border: 1.5px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 
+    0 10px 22px -4px rgba(72, 187, 120, 0.15),
+    0 2px 6px -1px rgba(72, 187, 120, 0.06),
+    inset 0 3px 5px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -3px 5px 0 rgba(72, 187, 120, 0.1);
+}
+
+.clay-card-peach {
+  background: #FFF2EB;
+  border-radius: 1.5rem;
+  border: 1.5px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 
+    0 10px 22px -4px rgba(246, 138, 85, 0.14),
+    0 2px 6px -1px rgba(246, 138, 85, 0.05),
+    inset 0 3px 5px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -3px 5px 0 rgba(246, 138, 85, 0.09);
+}
+
+.clay-tray {
+  background: #EFE9DE;
+  box-shadow: 
+    inset 0 2.5px 5px 0 rgba(45, 49, 66, 0.09),
+    inset 0 1px 2px 0 rgba(45, 49, 66, 0.05),
+    0 1px 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.clay-tray-soft {
+  background: #F4EFE6;
+  box-shadow: 
+    inset 0 2px 4px 0 rgba(45, 49, 66, 0.07),
+    0 1px 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.clay-badge {
+  box-shadow: 
+    0 3px 8px -1px rgba(50, 45, 75, 0.08),
+    inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.8),
+    inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.08);
+}
+
+.clay-pill-active {
+  background: #FFFFFF;
+  box-shadow: 
+    0 4px 10px -2px rgba(45, 49, 66, 0.14),
+    0 1px 3px 0 rgba(45, 49, 66, 0.06),
+    inset 0 2px 3px 0 rgba(255, 255, 255, 0.98),
+    inset 0 -2px 3px 0 rgba(45, 49, 66, 0.05);
+}
+
+.clay-btn {
+  border-radius: 9999px;
+  transition: all 0.16s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 
+    0 6px 16px -2px var(--clay-shadow-color, rgba(45, 49, 66, 0.18)),
+    0 2px 4px -1px var(--clay-shadow-color, rgba(45, 49, 66, 0.1)),
+    inset 0 2px 3px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -2.5px 4px 0 rgba(0, 0, 0, 0.18);
+}
+
+.clay-btn:hover {
+  transform: translateY(-1.5px);
+  filter: brightness(1.03);
+}
+
+.clay-btn:active {
+  transform: translateY(1.5px) scale(0.97);
+  box-shadow: 
+    0 2px 5px -1px var(--clay-shadow-color, rgba(45, 49, 66, 0.2)),
+    inset 0 2px 4px 0 rgba(0, 0, 0, 0.25);
+}
+
+.clay-btn-lavender {
+  background: #7379E6;
+  --clay-shadow-color: rgba(115, 121, 230, 0.4);
+}
+.clay-btn-lavender:hover {
+  background: #656BD9;
+}
+
+.clay-btn-coral {
+  background: #FF758F;
+  --clay-shadow-color: rgba(255, 117, 143, 0.4);
+}
+.clay-btn-coral:hover {
+  background: #F26480;
+}
+
+/* Warm iOS Glassmorphism Utilities */
 .ios-glass {
-  @apply bg-white/75 backdrop-blur-2xl border-white/40;
+  @apply bg-[#FAF7F2]/90 backdrop-blur-2xl border-white/60;
 }
 
 .ios-card {
-  @apply bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.03)];
+  @apply clay-card;
 }
 
 /* Hide scrollbars but keep functionality */

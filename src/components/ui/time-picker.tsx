@@ -33,19 +33,19 @@ export const TimePicker = ({ value, onChange, label, className }: TimePickerProp
           aria-expanded={open}
           aria-label={label ? `${label}时间：${value || '未设置'}` : `选择时间：${value || '未设置'}`}
           className={cn(
-            "h-9 w-full justify-start gap-1.5 bg-black/[0.03] hover:bg-black/[0.06] border-none rounded-xl px-2.5 font-normal active:scale-[0.98] transition-all",
+            "h-8.5 w-full justify-start gap-1.5 clay-tray rounded-2xl px-3 font-normal active:scale-[0.98] transition-all border border-white/60 shadow-none",
             className
           )}
         >
-          <Clock className="h-3.5 w-3.5 opacity-50 shrink-0" />
-          <span className="font-tabular text-xs font-semibold text-black/80">{value || "选择时间"}</span>
-          {label && <span className="ml-auto text-[9px] text-black/40 font-bold uppercase tracking-wider">{label}</span>}
+          <Clock className="h-3.5 w-3.5 text-[#7379E6] shrink-0" />
+          <span className="font-tabular text-xs font-black text-[#2D3142]">{value || "选择时间"}</span>
+          {label && <span className="ml-auto text-[9px] text-[#5B60C4] font-black uppercase tracking-wider">{label}</span>}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-72 p-3 bg-white/85 backdrop-blur-2xl border-white/40 shadow-2xl rounded-2xl">
-        <div className="flex items-center justify-between pb-2 mb-2 border-b border-black/[0.06]">
-          <span className="text-xs font-bold text-black/70">{label ? `${label}时间` : '选择时间'}</span>
-          <span className="text-xs font-mono font-bold text-[#007AFF] bg-[#007AFF]/10 px-2 py-0.5 rounded-md">
+      <PopoverContent className="w-72 p-4 bg-[#FAF7F2] border-2 border-white/95 shadow-2xl rounded-3xl">
+        <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#F0EBE0]">
+          <span className="text-xs font-black text-[#2D3142]">{label ? `${label}时间` : '选择时间'}</span>
+          <span className="text-xs font-mono font-black text-[#7379E6] bg-[#EEF0FD] border border-white px-2.5 py-0.5 rounded-xl shadow-2xs">
             {h}:{m}
           </span>
         </div>
@@ -53,7 +53,7 @@ export const TimePicker = ({ value, onChange, label, className }: TimePickerProp
         {/* Scroll Pickers */}
         <div className="flex gap-3 justify-center">
           <div className="flex flex-col items-center gap-1 flex-1">
-            <span className="text-[10px] font-bold text-black/40 uppercase">小时</span>
+            <span className="text-[10px] font-black text-[#5B60C4] uppercase">小时</span>
             <ScrollPicker 
               options={HOURS} 
               value={h} 
@@ -62,7 +62,7 @@ export const TimePicker = ({ value, onChange, label, className }: TimePickerProp
             />
           </div>
           <div className="flex flex-col items-center gap-1 flex-1">
-            <span className="text-[10px] font-bold text-black/40 uppercase">分钟</span>
+            <span className="text-[10px] font-black text-[#5B60C4] uppercase">分钟</span>
             <ScrollPicker 
               options={MINUTES} 
               value={m} 
@@ -73,9 +73,9 @@ export const TimePicker = ({ value, onChange, label, className }: TimePickerProp
         </div>
 
         {/* Quick Presets */}
-        <div className="mt-3 pt-2.5 border-t border-black/[0.06]">
-          <div className="text-[10px] font-bold text-black/40 uppercase tracking-wider mb-1.5">快捷选择</div>
-          <div className="grid grid-cols-4 gap-1">
+        <div className="mt-3 pt-2.5 border-t border-[#F0EBE0]">
+          <div className="text-[10px] font-black text-[#5B60C4] uppercase tracking-wider mb-1.5">快捷选择</div>
+          <div className="grid grid-cols-4 gap-1.5">
             {COMMON_PRESETS.map((preset) => {
               const active = value === preset;
               return (
@@ -87,10 +87,10 @@ export const TimePicker = ({ value, onChange, label, className }: TimePickerProp
                     setOpen(false);
                   }}
                   className={cn(
-                    "h-6 rounded-md text-[10px] font-mono font-semibold flex items-center justify-center transition-colors",
+                    "h-6.5 rounded-xl text-[10px] font-mono font-black flex items-center justify-center transition-all cursor-pointer",
                     active 
-                      ? "bg-[#007AFF] text-white" 
-                      : "bg-black/[0.04] text-black/70 hover:bg-black/[0.08]"
+                      ? "bg-[#7379E6] text-white shadow-xs border border-white" 
+                      : "bg-white text-[#2D3142] border border-[#EFEAE1] hover:bg-[#F4EFE6]"
                   )}
                 >
                   {preset}
@@ -105,7 +105,7 @@ export const TimePicker = ({ value, onChange, label, className }: TimePickerProp
           <Button 
             type="button"
             size="sm" 
-            className="w-full h-8 text-xs bg-[#007AFF] text-white rounded-xl gap-1"
+            className="w-full h-9 text-xs bg-[#7379E6] hover:bg-[#656BD9] text-white font-black rounded-2xl gap-1 shadow-[0_4px_12px_rgba(115,121,230,0.35),inset_0_1.5px_2px_rgba(255,255,255,0.5)]"
             onClick={() => setOpen(false)}
           >
             <Check className="w-3.5 h-3.5" />

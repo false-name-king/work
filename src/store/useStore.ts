@@ -16,6 +16,22 @@ export interface Person {
   endTime: string;   // "20:30"
 }
 
+interface BasePerson {
+  id: number;
+  name: string;
+  role: string;
+  machine: number | null;
+}
+
+interface DailyRecord {
+  attendance?: AttendanceStatus;
+  workStatus?: string[];
+  batches?: number;
+  pieces?: number;
+  startTime?: string;
+  endTime?: string;
+}
+
 interface PeopleStore {
   people: Person[];
   today: string;
@@ -30,6 +46,7 @@ interface PeopleStore {
   setMemo: (memo: string) => Promise<void>;
   setAllAttendance: (status: AttendanceStatus) => Promise<void>;
   setAllTimes: (startTime: string, endTime: string) => Promise<void>;
+  resetAllData: () => Promise<void>;
 }
 
 export const getTodayDefaultDate = (): string => {
@@ -37,67 +54,187 @@ export const getTodayDefaultDate = (): string => {
   return `${now.getMonth() + 1} 月 ${now.getDate()} 日`;
 };
 
+const STORAGE_KEY_PEOPLE = 'attendance_people_v1';
+const STORAGE_KEY_DAILY_RECORDS = 'attendance_daily_records_v1';
+const STORAGE_KEY_MEMOS = 'attendance_memos_v1';
+
+const DEFAULT_BASE_PEOPLE: BasePerson[] = [
+  { id: 1, name: '郭书楠', role: '机长', machine: null },
+  { id: 2, name: '严文雅', role: '组员', machine: null },
+  { id: 3, name: '卢从庆', role: '组员', machine: null },
+  { id: 4, name: '杜瑶瑶', role: '组员', machine: null },
+  { id: 5, name: '章屹', role: '组员', machine: null },
+];
+
+function getStoredBasePeople(): BasePerson[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_PEOPLE);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
+    }
+  } catch (e) {
+    console.error("读取本地组员名单失败", e);
+  }
+  return DEFAULT_BASE_PEOPLE;
+}
+
+function saveStoredBasePeople(people: BasePerson[]) {
+  try {
+    localStorage.setItem(STORAGE_KEY_PEOPLE, JSON.stringify(people));
+  } catch (e) {
+    console.error("保存本地组员名单失败", e);
+  }
+}
+
+function getStoredDailyRecords(): Record<string, Record<string, DailyRecord>> {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_DAILY_RECORDS);
+    if (raw) {
+      return JSON.parse(raw);
+    }
+  } catch (e) {
+    console.error("读取本地每日记录失败", e);
+  }
+  return {};
+}
+
+function saveStoredDailyRecords(records: Record<string, Record<string, DailyRecord>>) {
+  try {
+    localStorage.setItem(STORAGE_KEY_DAILY_RECORDS, JSON.stringify(records));
+  } catch (e) {
+    console.error("保存本地每日记录失败", e);
+  }
+}
+
+function getStoredMemos(): Record<string, string> {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_MEMOS);
+    if (raw) {
+      return JSON.parse(raw);
+    }
+  } catch (e) {
+    console.error("读取本地备注失败", e);
+  }
+  return {};
+}
+
+function saveStoredMemos(memos: Record<string, string>) {
+  try {
+    localStorage.setItem(STORAGE_KEY_MEMOS, JSON.stringify(memos));
+  } catch (e) {
+    console.error("保存本地备注失败", e);
+  }
+}
+
+function assemblePeopleForDate(
+  dateStr: string,
+  basePeople: BasePerson[],
+  dailyRecords: Record<string, Record<string, DailyRecord>>
+): Person[] {
+  const dateMap = dailyRecords[dateStr] || {};
+  return basePeople.map((bp) => {
+    const rec = dateMap[String(bp.id)];
+    return {
+      id: bp.id,
+      name: bp.name,
+      role: bp.role,
+      machine: bp.machine,
+      attendance: rec?.attendance ?? "出勤",
+      workStatus: rec?.workStatus ?? [],
+      batches: rec?.batches ?? 20,
+      pieces: rec?.pieces ?? 20,
+      startTime: rec?.startTime ?? "19:00",
+      endTime: rec?.endTime ?? "20:30",
+    };
+  });
+}
+
+const initialDate = getTodayDefaultDate();
+const initialBasePeople = getStoredBasePeople();
+const initialDailyRecords = getStoredDailyRecords();
+const initialMemos = getStoredMemos();
+
 export const useStore = create<PeopleStore>((set, get) => {
   return {
-    people: [],
-    today: getTodayDefaultDate(),
-    memo: "无",
+    people: assemblePeopleForDate(initialDate, initialBasePeople, initialDailyRecords),
+    today: initialDate,
+    memo: initialMemos[initialDate] || "无",
     isLoading: false,
     error: null,
 
     fetchData: async (dateStr) => {
       set({ isLoading: true, error: null });
       try {
-        const [peopleRes, memoRes] = await Promise.all([
-          fetch(`/api/people?date=${encodeURIComponent(dateStr)}`),
-          fetch(`/api/memo?date=${encodeURIComponent(dateStr)}`)
-        ]);
-        
-        if (!peopleRes.ok || !memoRes.ok) {
-          throw new Error("服务端响应异常");
-        }
+        const basePeople = getStoredBasePeople();
+        const dailyRecords = getStoredDailyRecords();
+        const memos = getStoredMemos();
 
-        const people = (await peopleRes.json()) as Person[];
-        const memoData = (await memoRes.json()) as { memo?: string };
+        const people = assemblePeopleForDate(dateStr, basePeople, dailyRecords);
+        const memo = memos[dateStr] || "无";
 
-        set({ 
-          people: Array.isArray(people) ? people : [], 
-          memo: memoData?.memo || "无", 
-          today: dateStr, 
-          isLoading: false 
+        set({
+          people,
+          memo,
+          today: dateStr,
+          isLoading: false,
         });
       } catch (e) {
-        const message = (e as Error).message || "加载数据失败";
-        console.error("加载数据失败", e);
-        set({ isLoading: false, error: message });
-        toast.error("加载数据失败，请检查网络连接");
+        console.error("加载本地数据失败", e);
+        set({ isLoading: false, error: "加载本地数据失败" });
       }
     },
 
     updatePerson: async (id, updates) => {
-      const prevPeople = get().people;
-      
-      // 乐观更新
-      set((state) => ({
-        people: state.people.map(p => p.id === id ? { ...p, ...updates } : p)
-      }));
+      const { today, people } = get();
 
-      // 异步同步到后端
-      try {
-        const { today } = get();
-        const res = await fetch(`/api/people/${id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ date: today, ...updates })
+      // 1. 同步更新状态树
+      const updatedPeople = people.map(p => p.id === id ? { ...p, ...updates } : p);
+      set({ people: updatedPeople });
+
+      // 2. 如果包含基础信息修改 (角色、机号)，持久化至 basePeople
+      if (updates.role !== undefined || updates.machine !== undefined) {
+        const basePeople = getStoredBasePeople();
+        const updatedBasePeople = basePeople.map(p => {
+          if (p.id === id) {
+            return {
+              ...p,
+              ...(updates.role !== undefined ? { role: updates.role } : {}),
+              ...(updates.machine !== undefined ? { machine: updates.machine } : {}),
+            };
+          }
+          return p;
         });
-        if (!res.ok) {
-          throw new Error("同步失败");
+        saveStoredBasePeople(updatedBasePeople);
+      }
+
+      // 3. 如果包含日期动态属性修改，持久化至 dailyRecords
+      const hasDailyChanges = 
+        updates.attendance !== undefined ||
+        updates.workStatus !== undefined ||
+        updates.batches !== undefined ||
+        updates.pieces !== undefined ||
+        updates.startTime !== undefined ||
+        updates.endTime !== undefined;
+
+      if (hasDailyChanges) {
+        const dailyRecords = getStoredDailyRecords();
+        if (!dailyRecords[today]) {
+          dailyRecords[today] = {};
         }
-      } catch (e) {
-        console.error("同步人员数据失败", e);
-        // 回滚状态
-        set({ people: prevPeople });
-        toast.error("修改未保存，网络异常");
+        const existing = dailyRecords[today][String(id)] || {};
+        dailyRecords[today][String(id)] = {
+          ...existing,
+          ...(updates.attendance !== undefined ? { attendance: updates.attendance } : {}),
+          ...(updates.workStatus !== undefined ? { workStatus: updates.workStatus } : {}),
+          ...(updates.batches !== undefined ? { batches: updates.batches } : {}),
+          ...(updates.pieces !== undefined ? { pieces: updates.pieces } : {}),
+          ...(updates.startTime !== undefined ? { startTime: updates.startTime } : {}),
+          ...(updates.endTime !== undefined ? { endTime: updates.endTime } : {}),
+        };
+        saveStoredDailyRecords(dailyRecords);
       }
     },
 
@@ -106,12 +243,16 @@ export const useStore = create<PeopleStore>((set, get) => {
       if (!trimmed) return false;
 
       try {
-        const res = await fetch('/api/people', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: trimmed })
-        });
-        if (!res.ok) throw new Error("添加失败");
+        const basePeople = getStoredBasePeople();
+        const maxId = basePeople.reduce((max, p) => Math.max(max, p.id), 0);
+        const newPerson: BasePerson = {
+          id: maxId + 1,
+          name: trimmed,
+          role: "组员",
+          machine: null,
+        };
+        const updatedBasePeople = [...basePeople, newPerson];
+        saveStoredBasePeople(updatedBasePeople);
 
         await get().fetchData(get().today);
         return true;
@@ -123,25 +264,27 @@ export const useStore = create<PeopleStore>((set, get) => {
     },
 
     removePerson: async (id) => {
-      const prevPeople = get().people;
-      const targetPerson = prevPeople.find(p => p.id === id);
-
-      // 乐观删除
-      set((state) => ({
-        people: state.people.filter(p => p.id !== id)
-      }));
-
       try {
-        const res = await fetch(`/api/people/${id}`, {
-          method: 'DELETE'
+        const basePeople = getStoredBasePeople();
+        const updatedBasePeople = basePeople.filter(p => p.id !== id);
+        saveStoredBasePeople(updatedBasePeople);
+
+        // 清理 dailyRecords 中该人员的数据
+        const dailyRecords = getStoredDailyRecords();
+        Object.keys(dailyRecords).forEach(d => {
+          if (dailyRecords[d]) {
+            delete dailyRecords[d][String(id)];
+          }
         });
-        if (!res.ok) throw new Error("删除失败");
+        saveStoredDailyRecords(dailyRecords);
+
+        set((state) => ({
+          people: state.people.filter(p => p.id !== id)
+        }));
         return true;
       } catch (e) {
         console.error("删除人员失败", e);
-        // 回滚
-        set({ people: prevPeople });
-        toast.error(`删除 ${targetPerson?.name || '人员'} 失败`);
+        toast.error("删除人员失败");
         return false;
       }
     },
@@ -152,21 +295,11 @@ export const useStore = create<PeopleStore>((set, get) => {
     },
 
     setMemo: async (memo) => {
-      const prevMemo = get().memo;
+      const { today } = get();
       set({ memo });
-      try {
-        const { today } = get();
-        const res = await fetch('/api/memo', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ date: today, memo })
-        });
-        if (!res.ok) throw new Error("保存备注失败");
-      } catch (e) {
-        console.error("同步备注失败", e);
-        set({ memo: prevMemo });
-        toast.error("备注保存失败");
-      }
+      const memos = getStoredMemos();
+      memos[today] = memo;
+      saveStoredMemos(memos);
     },
 
     setAllAttendance: async (status: AttendanceStatus) => {
@@ -179,7 +312,7 @@ export const useStore = create<PeopleStore>((set, get) => {
           pieces: status === "出勤" ? (p.pieces || 20) : 0,
         })
       );
-      await Promise.allSettled(updates);
+      await Promise.all(updates);
       toast.success(`已全员设置为【${status}】`);
     },
 
@@ -188,8 +321,31 @@ export const useStore = create<PeopleStore>((set, get) => {
       const updates = people
         .filter(p => p.attendance === '出勤')
         .map(p => updatePerson(p.id, { startTime, endTime }));
-      await Promise.allSettled(updates);
+      await Promise.all(updates);
       toast.success(`已批量设置出勤工时：${startTime} - ${endTime}`);
+    },
+
+    resetAllData: async () => {
+      try {
+        localStorage.removeItem(STORAGE_KEY_PEOPLE);
+        localStorage.removeItem(STORAGE_KEY_DAILY_RECORDS);
+        localStorage.removeItem(STORAGE_KEY_MEMOS);
+
+        const defaultPeople = DEFAULT_BASE_PEOPLE;
+        const currentDate = get().today;
+        const people = assemblePeopleForDate(currentDate, defaultPeople, {});
+
+        set({
+          people,
+          memo: "无",
+          isLoading: false,
+          error: null,
+        });
+        toast.success("已恢复为初始数据");
+      } catch (e) {
+        console.error("重置数据失败", e);
+        toast.error("重置数据失败");
+      }
     }
   };
 });

@@ -8,6 +8,26 @@ export default {
   theme: {
   	extend: {
   		colors: {
+  			pineTeal: {
+  				DEFAULT: '#366E6B',
+  				dark: '#264F4D',
+  				light: '#478985',
+  			},
+  			forestGreen: {
+  				DEFAULT: '#4E8966',
+  				dark: '#3A684D',
+  				light: '#65A37F',
+  			},
+  			slateBlue: {
+  				DEFAULT: '#6D8FB6',
+  				dark: '#547499',
+  				light: '#88A7CB',
+  			},
+  			warmSand: {
+  				DEFAULT: '#E5E1D5',
+  				dark: '#D4CEBF',
+  				light: '#F2EFE8',
+  			},
   			border: 'hsl(var(--border))',
   			input: 'hsl(var(--input))',
   			ring: 'hsl(var(--ring))',
