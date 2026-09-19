@@ -101,9 +101,7 @@ function getStoredDailyRecords(): Record<string, Record<string, DailyRecord>> {
   return {};
 }
 
-function saveStoredDailyRecords(
-  records: Record<string, Record<string, DailyRecord>>,
-) {
+function saveStoredDailyRecords(records: Record<string, Record<string, DailyRecord>>) {
   try {
     localStorage.setItem(STORAGE_KEY_DAILY_RECORDS, JSON.stringify(records));
   } catch (e) {
@@ -131,11 +129,7 @@ function saveStoredMemos(memos: Record<string, string>) {
   }
 }
 
-function assemblePeopleForDate(
-  dateStr: string,
-  basePeople: BasePerson[],
-  dailyRecords: Record<string, Record<string, DailyRecord>>,
-): Person[] {
+function assemblePeopleForDate(dateStr: string, basePeople: BasePerson[], dailyRecords: Record<string, Record<string, DailyRecord>>): Person[] {
   const dateMap = dailyRecords[dateStr] || {};
   return basePeople.map((bp) => {
     const rec = dateMap[String(bp.id)];
@@ -161,11 +155,7 @@ const initialMemos = getStoredMemos();
 
 export const useStore = create<PeopleStore>((set, get) => {
   return {
-    people: assemblePeopleForDate(
-      initialDate,
-      initialBasePeople,
-      initialDailyRecords,
-    ),
+    people: assemblePeopleForDate(initialDate, initialBasePeople, initialDailyRecords),
     today: initialDate,
     memo: initialMemos[initialDate] || '无',
     isLoading: false,
@@ -197,9 +187,7 @@ export const useStore = create<PeopleStore>((set, get) => {
       const { today, people } = get();
 
       // 1. 同步更新状态树
-      const updatedPeople = people.map((p) =>
-        p.id === id ? { ...p, ...updates } : p,
-      );
+      const updatedPeople = people.map((p) => (p.id === id ? { ...p, ...updates } : p));
       set({ people: updatedPeople });
 
       // 2. 如果包含基础信息修改 (角色、机号)，持久化至 basePeople
@@ -210,9 +198,7 @@ export const useStore = create<PeopleStore>((set, get) => {
             return {
               ...p,
               ...(updates.role !== undefined ? { role: updates.role } : {}),
-              ...(updates.machine !== undefined
-                ? { machine: updates.machine }
-                : {}),
+              ...(updates.machine !== undefined ? { machine: updates.machine } : {}),
             };
           }
           return p;
@@ -237,22 +223,12 @@ export const useStore = create<PeopleStore>((set, get) => {
         const existing = dailyRecords[today][String(id)] || {};
         dailyRecords[today][String(id)] = {
           ...existing,
-          ...(updates.attendance !== undefined
-            ? { attendance: updates.attendance }
-            : {}),
-          ...(updates.workStatus !== undefined
-            ? { workStatus: updates.workStatus }
-            : {}),
-          ...(updates.batches !== undefined
-            ? { batches: updates.batches }
-            : {}),
+          ...(updates.attendance !== undefined ? { attendance: updates.attendance } : {}),
+          ...(updates.workStatus !== undefined ? { workStatus: updates.workStatus } : {}),
+          ...(updates.batches !== undefined ? { batches: updates.batches } : {}),
           ...(updates.pieces !== undefined ? { pieces: updates.pieces } : {}),
-          ...(updates.startTime !== undefined
-            ? { startTime: updates.startTime }
-            : {}),
-          ...(updates.endTime !== undefined
-            ? { endTime: updates.endTime }
-            : {}),
+          ...(updates.startTime !== undefined ? { startTime: updates.startTime } : {}),
+          ...(updates.endTime !== undefined ? { endTime: updates.endTime } : {}),
         };
         saveStoredDailyRecords(dailyRecords);
       }
@@ -328,8 +304,8 @@ export const useStore = create<PeopleStore>((set, get) => {
         updatePerson(p.id, {
           attendance: status,
           workStatus: status === '出勤' ? p.workStatus : [],
-          batches: status === '出勤' ? p.batches || 20 : 0,
-          pieces: status === '出勤' ? p.pieces || 20 : 0,
+          batches: status === '出勤' ? p.batches || 0 : 0,
+          pieces: status === '出勤' ? p.pieces || 0 : 0,
         }),
       );
       await Promise.all(updates);
@@ -338,9 +314,7 @@ export const useStore = create<PeopleStore>((set, get) => {
 
     setAllTimes: async (startTime: string, endTime: string) => {
       const { people, updatePerson } = get();
-      const updates = people
-        .filter((p) => p.attendance === '出勤')
-        .map((p) => updatePerson(p.id, { startTime, endTime }));
+      const updates = people.filter((p) => p.attendance === '出勤').map((p) => updatePerson(p.id, { startTime, endTime }));
       await Promise.all(updates);
       toast.success(`已批量设置出勤工时：${startTime} - ${endTime}`);
     },
@@ -373,18 +347,5 @@ export const useStore = create<PeopleStore>((set, get) => {
 export const ROLES = ['机长', '组员'] as const;
 export const MACHINES = Array.from({ length: 100 }, (_, i) => i);
 export const COUNTS = Array.from({ length: 200 }, (_, i) => i);
-export const ATTENDANCE_TYPES: AttendanceStatus[] = [
-  '出勤',
-  '请假',
-  '公休',
-  '产假',
-];
-export const WORK_STATUSES = [
-  '人工',
-  '引导',
-  '辅助',
-  '闸机',
-  '货检',
-  '商务',
-  '未进岗',
-] as const;
+export const ATTENDANCE_TYPES: AttendanceStatus[] = ['出勤', '请假', '公休', '产假'];
+export const WORK_STATUSES = ['人工', '引导', '辅助', '闸机', '货检', '商务', '未进岗'] as const;

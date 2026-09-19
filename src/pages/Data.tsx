@@ -196,6 +196,11 @@ const Data = () => {
             共 {people.length} 人 · 出勤 {attendedCount}
           </span>
         </div>
+        <div className="flex items-center gap-1.5"></div>
+      </div>
+
+      <div className="flex justify-between items-center px-1 pt-0.5">
+        <div className="flex items-center gap-2"></div>
 
         <div className="flex items-center gap-1.5">
           <button
@@ -205,9 +210,6 @@ const Data = () => {
           >
             重制数据
           </button>
-        </div>
-
-        <div className="flex items-center gap-1.5">
           {/* Batch Actions Dialog */}
           <Dialog open={isBatchOpen} onOpenChange={setIsBatchOpen}>
             <DialogTrigger asChild>
