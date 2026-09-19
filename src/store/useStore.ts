@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { toast } from 'sonner';
 
-export type AttendanceStatus = "出勤" | "请假" | "公休" | "产假";
+export type AttendanceStatus = '出勤' | '请假' | '公休' | '产假';
 
 export interface Person {
   id: number;
@@ -13,7 +13,7 @@ export interface Person {
   batches: number;
   pieces: number;
   startTime: string; // "19:00"
-  endTime: string;   // "20:30"
+  endTime: string; // "20:30"
 }
 
 interface BasePerson {
@@ -76,7 +76,7 @@ function getStoredBasePeople(): BasePerson[] {
       }
     }
   } catch (e) {
-    console.error("读取本地组员名单失败", e);
+    console.error('读取本地组员名单失败', e);
   }
   return DEFAULT_BASE_PEOPLE;
 }
@@ -85,7 +85,7 @@ function saveStoredBasePeople(people: BasePerson[]) {
   try {
     localStorage.setItem(STORAGE_KEY_PEOPLE, JSON.stringify(people));
   } catch (e) {
-    console.error("保存本地组员名单失败", e);
+    console.error('保存本地组员名单失败', e);
   }
 }
 
@@ -96,16 +96,18 @@ function getStoredDailyRecords(): Record<string, Record<string, DailyRecord>> {
       return JSON.parse(raw);
     }
   } catch (e) {
-    console.error("读取本地每日记录失败", e);
+    console.error('读取本地每日记录失败', e);
   }
   return {};
 }
 
-function saveStoredDailyRecords(records: Record<string, Record<string, DailyRecord>>) {
+function saveStoredDailyRecords(
+  records: Record<string, Record<string, DailyRecord>>,
+) {
   try {
     localStorage.setItem(STORAGE_KEY_DAILY_RECORDS, JSON.stringify(records));
   } catch (e) {
-    console.error("保存本地每日记录失败", e);
+    console.error('保存本地每日记录失败', e);
   }
 }
 
@@ -116,7 +118,7 @@ function getStoredMemos(): Record<string, string> {
       return JSON.parse(raw);
     }
   } catch (e) {
-    console.error("读取本地备注失败", e);
+    console.error('读取本地备注失败', e);
   }
   return {};
 }
@@ -125,14 +127,14 @@ function saveStoredMemos(memos: Record<string, string>) {
   try {
     localStorage.setItem(STORAGE_KEY_MEMOS, JSON.stringify(memos));
   } catch (e) {
-    console.error("保存本地备注失败", e);
+    console.error('保存本地备注失败', e);
   }
 }
 
 function assemblePeopleForDate(
   dateStr: string,
   basePeople: BasePerson[],
-  dailyRecords: Record<string, Record<string, DailyRecord>>
+  dailyRecords: Record<string, Record<string, DailyRecord>>,
 ): Person[] {
   const dateMap = dailyRecords[dateStr] || {};
   return basePeople.map((bp) => {
@@ -142,12 +144,12 @@ function assemblePeopleForDate(
       name: bp.name,
       role: bp.role,
       machine: bp.machine,
-      attendance: rec?.attendance ?? "出勤",
+      attendance: rec?.attendance ?? '出勤',
       workStatus: rec?.workStatus ?? [],
-      batches: rec?.batches ?? 20,
-      pieces: rec?.pieces ?? 20,
-      startTime: rec?.startTime ?? "19:00",
-      endTime: rec?.endTime ?? "20:30",
+      batches: rec?.batches ?? 0,
+      pieces: rec?.pieces ?? 0,
+      startTime: rec?.startTime ?? '19:00',
+      endTime: rec?.endTime ?? '20:30',
     };
   });
 }
@@ -159,9 +161,13 @@ const initialMemos = getStoredMemos();
 
 export const useStore = create<PeopleStore>((set, get) => {
   return {
-    people: assemblePeopleForDate(initialDate, initialBasePeople, initialDailyRecords),
+    people: assemblePeopleForDate(
+      initialDate,
+      initialBasePeople,
+      initialDailyRecords,
+    ),
     today: initialDate,
-    memo: initialMemos[initialDate] || "无",
+    memo: initialMemos[initialDate] || '无',
     isLoading: false,
     error: null,
 
@@ -173,7 +179,7 @@ export const useStore = create<PeopleStore>((set, get) => {
         const memos = getStoredMemos();
 
         const people = assemblePeopleForDate(dateStr, basePeople, dailyRecords);
-        const memo = memos[dateStr] || "无";
+        const memo = memos[dateStr] || '无';
 
         set({
           people,
@@ -182,8 +188,8 @@ export const useStore = create<PeopleStore>((set, get) => {
           isLoading: false,
         });
       } catch (e) {
-        console.error("加载本地数据失败", e);
-        set({ isLoading: false, error: "加载本地数据失败" });
+        console.error('加载本地数据失败', e);
+        set({ isLoading: false, error: '加载本地数据失败' });
       }
     },
 
@@ -191,18 +197,22 @@ export const useStore = create<PeopleStore>((set, get) => {
       const { today, people } = get();
 
       // 1. 同步更新状态树
-      const updatedPeople = people.map(p => p.id === id ? { ...p, ...updates } : p);
+      const updatedPeople = people.map((p) =>
+        p.id === id ? { ...p, ...updates } : p,
+      );
       set({ people: updatedPeople });
 
       // 2. 如果包含基础信息修改 (角色、机号)，持久化至 basePeople
       if (updates.role !== undefined || updates.machine !== undefined) {
         const basePeople = getStoredBasePeople();
-        const updatedBasePeople = basePeople.map(p => {
+        const updatedBasePeople = basePeople.map((p) => {
           if (p.id === id) {
             return {
               ...p,
               ...(updates.role !== undefined ? { role: updates.role } : {}),
-              ...(updates.machine !== undefined ? { machine: updates.machine } : {}),
+              ...(updates.machine !== undefined
+                ? { machine: updates.machine }
+                : {}),
             };
           }
           return p;
@@ -211,7 +221,7 @@ export const useStore = create<PeopleStore>((set, get) => {
       }
 
       // 3. 如果包含日期动态属性修改，持久化至 dailyRecords
-      const hasDailyChanges = 
+      const hasDailyChanges =
         updates.attendance !== undefined ||
         updates.workStatus !== undefined ||
         updates.batches !== undefined ||
@@ -227,12 +237,22 @@ export const useStore = create<PeopleStore>((set, get) => {
         const existing = dailyRecords[today][String(id)] || {};
         dailyRecords[today][String(id)] = {
           ...existing,
-          ...(updates.attendance !== undefined ? { attendance: updates.attendance } : {}),
-          ...(updates.workStatus !== undefined ? { workStatus: updates.workStatus } : {}),
-          ...(updates.batches !== undefined ? { batches: updates.batches } : {}),
+          ...(updates.attendance !== undefined
+            ? { attendance: updates.attendance }
+            : {}),
+          ...(updates.workStatus !== undefined
+            ? { workStatus: updates.workStatus }
+            : {}),
+          ...(updates.batches !== undefined
+            ? { batches: updates.batches }
+            : {}),
           ...(updates.pieces !== undefined ? { pieces: updates.pieces } : {}),
-          ...(updates.startTime !== undefined ? { startTime: updates.startTime } : {}),
-          ...(updates.endTime !== undefined ? { endTime: updates.endTime } : {}),
+          ...(updates.startTime !== undefined
+            ? { startTime: updates.startTime }
+            : {}),
+          ...(updates.endTime !== undefined
+            ? { endTime: updates.endTime }
+            : {}),
         };
         saveStoredDailyRecords(dailyRecords);
       }
@@ -248,7 +268,7 @@ export const useStore = create<PeopleStore>((set, get) => {
         const newPerson: BasePerson = {
           id: maxId + 1,
           name: trimmed,
-          role: "组员",
+          role: '组员',
           machine: null,
         };
         const updatedBasePeople = [...basePeople, newPerson];
@@ -257,8 +277,8 @@ export const useStore = create<PeopleStore>((set, get) => {
         await get().fetchData(get().today);
         return true;
       } catch (e) {
-        console.error("添加人员失败", e);
-        toast.error("添加人员失败");
+        console.error('添加人员失败', e);
+        toast.error('添加人员失败');
         return false;
       }
     },
@@ -266,12 +286,12 @@ export const useStore = create<PeopleStore>((set, get) => {
     removePerson: async (id) => {
       try {
         const basePeople = getStoredBasePeople();
-        const updatedBasePeople = basePeople.filter(p => p.id !== id);
+        const updatedBasePeople = basePeople.filter((p) => p.id !== id);
         saveStoredBasePeople(updatedBasePeople);
 
         // 清理 dailyRecords 中该人员的数据
         const dailyRecords = getStoredDailyRecords();
-        Object.keys(dailyRecords).forEach(d => {
+        Object.keys(dailyRecords).forEach((d) => {
           if (dailyRecords[d]) {
             delete dailyRecords[d][String(id)];
           }
@@ -279,12 +299,12 @@ export const useStore = create<PeopleStore>((set, get) => {
         saveStoredDailyRecords(dailyRecords);
 
         set((state) => ({
-          people: state.people.filter(p => p.id !== id)
+          people: state.people.filter((p) => p.id !== id),
         }));
         return true;
       } catch (e) {
-        console.error("删除人员失败", e);
-        toast.error("删除人员失败");
+        console.error('删除人员失败', e);
+        toast.error('删除人员失败');
         return false;
       }
     },
@@ -304,13 +324,13 @@ export const useStore = create<PeopleStore>((set, get) => {
 
     setAllAttendance: async (status: AttendanceStatus) => {
       const { people, updatePerson } = get();
-      const updates = people.map(p => 
-        updatePerson(p.id, { 
-          attendance: status, 
-          workStatus: status === "出勤" ? p.workStatus : [],
-          batches: status === "出勤" ? (p.batches || 20) : 0,
-          pieces: status === "出勤" ? (p.pieces || 20) : 0,
-        })
+      const updates = people.map((p) =>
+        updatePerson(p.id, {
+          attendance: status,
+          workStatus: status === '出勤' ? p.workStatus : [],
+          batches: status === '出勤' ? p.batches || 20 : 0,
+          pieces: status === '出勤' ? p.pieces || 20 : 0,
+        }),
       );
       await Promise.all(updates);
       toast.success(`已全员设置为【${status}】`);
@@ -319,8 +339,8 @@ export const useStore = create<PeopleStore>((set, get) => {
     setAllTimes: async (startTime: string, endTime: string) => {
       const { people, updatePerson } = get();
       const updates = people
-        .filter(p => p.attendance === '出勤')
-        .map(p => updatePerson(p.id, { startTime, endTime }));
+        .filter((p) => p.attendance === '出勤')
+        .map((p) => updatePerson(p.id, { startTime, endTime }));
       await Promise.all(updates);
       toast.success(`已批量设置出勤工时：${startTime} - ${endTime}`);
     },
@@ -337,21 +357,34 @@ export const useStore = create<PeopleStore>((set, get) => {
 
         set({
           people,
-          memo: "无",
+          memo: '无',
           isLoading: false,
           error: null,
         });
-        toast.success("已恢复为初始数据");
+        toast.success('已恢复为初始数据');
       } catch (e) {
-        console.error("重置数据失败", e);
-        toast.error("重置数据失败");
+        console.error('重置数据失败', e);
+        toast.error('重置数据失败');
       }
-    }
+    },
   };
 });
 
 export const ROLES = ['机长', '组员'] as const;
 export const MACHINES = Array.from({ length: 100 }, (_, i) => i);
 export const COUNTS = Array.from({ length: 200 }, (_, i) => i);
-export const ATTENDANCE_TYPES: AttendanceStatus[] = ["出勤", "请假", "公休", "产假"];
-export const WORK_STATUSES = ["人工", "引导", "闸机", "货检", "商务", "未进岗"] as const;
+export const ATTENDANCE_TYPES: AttendanceStatus[] = [
+  '出勤',
+  '请假',
+  '公休',
+  '产假',
+];
+export const WORK_STATUSES = [
+  '人工',
+  '引导',
+  '辅助',
+  '闸机',
+  '货检',
+  '商务',
+  '未进岗',
+] as const;
